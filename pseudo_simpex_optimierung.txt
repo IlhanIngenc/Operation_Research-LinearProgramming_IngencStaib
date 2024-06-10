@@ -1,0 +1,41 @@
+1. Bibliotheken importieren
+    a. numpy als np
+    b. matplotlib.pyplot als plt
+    c. linprog von scipy.optimize
+
+2. Funktion zur Lösung des Optimierungsproblems der Möbelfabrik definieren
+    a. Zielfunktion als Array von negativen Werten definieren (Deckungsbeitrag)
+    b. Nebenbedingungen als 2D-Array definieren (Ressourcenverbrauch pro Tisch und Stuhl)
+    c. Verfügbare Ressourcen als 1D-Array definieren
+    d. Nicht-Negativitäts-Bedingungen festlegen
+    e. linprog aufrufen, um das lineare Optimierungsproblem mit der Simplex-Methode zu lösen
+    f. Optimale Produktionsmengen und maximalen Gewinn zurückgeben
+
+3. Funktion aufrufen und Ergebnisse speichern
+
+4. Funktion zur Visualisierung der Lösung definieren
+    a. Obergrenze für die Anzahl der Tische berechnen
+    b. Obergrenze für die Anzahl der Stühle berechnen
+    c. Wertebereich für die Anzahl der Tische festlegen
+    d. Maximale Anzahl von Stühlen basierend auf den Ressourcen berechnen
+    e. Zielfunktion für den maximalen Gewinn darstellen
+    f. Plot erstellen und Ressourcenbeschränkungen sowie Zielfunktion darstellen
+    g. Zulässige Lösungsmenge schattieren
+    h. Optimale Lösung als Punkt darstellen
+    i. Hilfslinien zur Verdeutlichung der optimalen Lösung zeichnen
+    j. Achsenbegrenzungen und Beschriftungen festlegen
+    k. Plot anzeigen
+
+5. Visualisierungsfunktion mit den berechneten Ergebnissen aufrufen
+
+6. Konsolenausgabe der berechneten Werte aus der linearen Optimierung
+    a. Optimale Produktionsmengen ausgeben
+    b. Potenziellen Gewinn ausgeben
+
+7. Überprüfung der Machbarkeit des Aufrundens der Produktionsmengen
+    a. Ergebnisse aus dem Array holen
+    b. Anzahl der Stühle aufrunden
+    c. Ressourcennutzung basierend auf den aufgerundeten Produktionsmengen berechnen
+    d. Überprüfen, ob die Ressourcenbeschränkungen überschritten werden
+        i. Wenn nein, aufgerundete Ergebnisse und Ressourcennutzung innerhalb der Grenzen ausgeben
+        ii. Wenn ja, Ausgabe, dass Aufrunden nicht möglich ist
