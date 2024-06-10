@@ -1,41 +1,124 @@
-1. Bibliotheken importieren
-    a. numpy als np
-    b. matplotlib.pyplot als plt
-    c. linprog von scipy.optimize
+PROGRAM SimplexOptimierung;
 
-2. Funktion zur Lösung des Optimierungsproblems der Möbelfabrik definieren
-    a. Zielfunktion als Array von negativen Werten definieren (Deckungsbeitrag)
-    b. Nebenbedingungen als 2D-Array definieren (Ressourcenverbrauch pro Tisch und Stuhl)
-    c. Verfügbare Ressourcen als 1D-Array definieren
-    d. Nicht-Negativitäts-Bedingungen festlegen
-    e. linprog aufrufen, um das lineare Optimierungsproblem mit der Simplex-Methode zu lösen
-    f. Optimale Produktionsmengen und maximalen Gewinn zurückgeben
+USES
+  numpy, matplotlib, scipy;
 
-3. Funktion aufrufen und Ergebnisse speichern
+PROCEDURE LpMoebelfabrik;
+VAR
+  c_lp: ARRAY[1..2] OF REAL;
+  A_lp: ARRAY[1..3, 1..2] OF REAL;
+  b_lp: ARRAY[1..3] OF REAL;
+  bounds_lp: ARRAY[1..2, 1..2] OF REAL;
+  res_lp: RECORD
+    x: ARRAY[1..2] OF REAL;
+    fun: REAL;
+  END;
+BEGIN
+  { Zielfunktion: Negative Werte, da linprog standardmäßig minimiert }
+  c_lp[1] := -25;
+  c_lp[2] := -15;
 
-4. Funktion zur Visualisierung der Lösung definieren
-    a. Obergrenze für die Anzahl der Tische berechnen
-    b. Obergrenze für die Anzahl der Stühle berechnen
-    c. Wertebereich für die Anzahl der Tische festlegen
-    d. Maximale Anzahl von Stühlen basierend auf den Ressourcen berechnen
-    e. Zielfunktion für den maximalen Gewinn darstellen
-    f. Plot erstellen und Ressourcenbeschränkungen sowie Zielfunktion darstellen
-    g. Zulässige Lösungsmenge schattieren
-    h. Optimale Lösung als Punkt darstellen
-    i. Hilfslinien zur Verdeutlichung der optimalen Lösung zeichnen
-    j. Achsenbegrenzungen und Beschriftungen festlegen
-    k. Plot anzeigen
+  { Nebenbedingungen: Ressourcenverbrauch pro Tisch und Stuhl }
+  A_lp[1, 1] := 5;  A_lp[1, 2] := 3;
+  A_lp[2, 1] := 5;  A_lp[2, 2] := 2;
+  A_lp[3, 1] := 3;  A_lp[3, 2] := 2;
 
-5. Visualisierungsfunktion mit den berechneten Ergebnissen aufrufen
+  { Verfügbare Ressourcen }
+  b_lp[1] := 600;
+  b_lp[2] := 450;
+  b_lp[3] := 300;
 
-6. Konsolenausgabe der berechneten Werte aus der linearen Optimierung
-    a. Optimale Produktionsmengen ausgeben
-    b. Potenziellen Gewinn ausgeben
+  { Nicht-Negativitäts-Bedingung }
+  bounds_lp[1, 1] := 0; bounds_lp[1, 2] := NULL;
+  bounds_lp[2, 1] := 0; bounds_lp[2, 2] := NULL;
 
-7. Überprüfung der Machbarkeit des Aufrundens der Produktionsmengen
-    a. Ergebnisse aus dem Array holen
-    b. Anzahl der Stühle aufrunden
-    c. Ressourcennutzung basierend auf den aufgerundeten Produktionsmengen berechnen
-    d. Überprüfen, ob die Ressourcenbeschränkungen überschritten werden
-        i. Wenn nein, aufgerundete Ergebnisse und Ressourcennutzung innerhalb der Grenzen ausgeben
-        ii. Wenn ja, Ausgabe, dass Aufrunden nicht möglich ist
+  { Lösung des linearen Optimierungsproblems mit der Simplex-Methode }
+  res_lp := linprog(c_lp, A_lp, b_lp, bounds_lp, 'simplex');
+
+  { Rückgabe der optimalen Produktionsmengen und des maximalen Gewinns }
+  RETURN res_lp.x, res_lp.fun;
+END;
+
+PROCEDURE VisualizeLpSolution(ergebnisse: ARRAY[1..2] OF REAL; gewinn: REAL);
+VAR
+  tische_max, stuehle_max: INTEGER;
+  tische, stuehle1, stuehle2, stuehle3, gewinn_linie: ARRAY OF REAL;
+BEGIN
+  { Berechnung der maximalen Anzahl von Tischen und Stühlen für die Darstellung }
+  tische_max := (600 DIV 5) + 10;
+  stuehle_max := (600 DIV 3) + 10;
+
+  { Wertebereich für die Anzahl der Tische }
+  tische := linspace(0, tische_max, 500);
+
+  { Berechnung der maximal möglichen Anzahl von Stühlen basierend auf den Ressourcen }
+  stuehle1 := (600 - 5 * tische) / 3;
+  stuehle2 := (450 - 5 * tische) / 2;
+  stuehle3 := (300 - 3 * tische) / 2;
+
+  { Darstellung der Zielfunktion für den maximalen Gewinn }
+  gewinn_linie := (gewinn - 25 * tische) / 15;
+
+  { Erstellen des Plots }
+  plt.figure(10, 8);
+  plt.plot(tische, stuehle1, 'Holzressourcen (5T + 3S ≤ 600)');
+  plt.plot(tische, stuehle2, 'Arbeitsstunden (5T + 2S ≤ 450)');
+  plt.plot(tische, stuehle3, 'Maschinenstunden (3T + 2S ≤ 300)');
+  plt.plot(tische, gewinn_linie, 'm--', 'Zielfunktion für Gewinn = ' + FLOATTOSTR(gewinn) + ' Euro');
+
+  { Darstellung der zulässigen Lösungsmenge }
+  plt.fill_between(tische, 0, MIN(MIN(stuehle1, stuehle2), stuehle3), 'gray', 0.5);
+  plt.plot(ergebnisse[1], ergebnisse[2], 'ro', 10, 'Optimale Lösung');
+
+  { Hilfslinien zur Verdeutlichung der optimalen Lösung }
+  plt.plot([ergebnisse[1], ergebnisse[1]], [0, ergebnisse[2]], 'r--');
+  plt.plot([0, ergebnisse[1]], [ergebnisse[2], ergebnisse[2]], 'r--');
+
+  { Achsenbegrenzungen und Beschriftungen }
+  plt.xlim(0, tische_max);
+  plt.ylim(0, stuehle_max);
+  plt.xlabel('Anzahl der Tische');
+  plt.ylabel('Anzahl der Stühle');
+  plt.legend();
+  plt.title('Visualisierung der LP-Lösung für die Möbelfabrik');
+  plt.grid(FALSE);
+  plt.show();
+END;
+
+VAR
+  lp_ergebnisse: ARRAY[1..2] OF REAL;
+  lp_gewinn: REAL;
+  anzahl_tische, anzahl_stuehle: REAL;
+  holznutzung, arbeitsnutzung, maschinennutzung: REAL;
+
+BEGIN
+  { Ausführen der Funktion und Speichern der Ergebnisse }
+  lp_ergebnisse, lp_gewinn := LpMoebelfabrik;
+
+  { Visualisieren der optimalen Lösung }
+  VisualizeLpSolution(lp_ergebnisse, -lp_gewinn);
+
+  { Konsolenausgabe der berechneten Werte aus der linearen Optimierung }
+  WRITELN('[Console] Das optimale Ergebnis liegt bei: ', lp_ergebnisse);
+  WRITELN('[Console] Mit einem potenziellen Gewinn in Höhe von ', -lp_gewinn, '€ !');
+
+  { Überprüfung der Machbarkeit des Aufrundens }
+  anzahl_tische := lp_ergebnisse[1];
+  anzahl_stuehle := CEIL(lp_ergebnisse[2]);
+
+  { Überprüfung der Ressourcennutzung }
+  holznutzung := 5 * anzahl_tische + 3 * anzahl_stuehle;
+  arbeitsnutzung := 5 * anzahl_tische + 2 * anzahl_stuehle;
+  maschinennutzung := 3 * anzahl_tische + 2 * anzahl_stuehle;
+
+  { Abfrage - Werden die Ressourcenbeschränkungen überschritten, wenn man aufrundet? }
+  IF (holznutzung <= 600) AND (arbeitsnutzung <= 450) AND (maschinennutzung <= 300) THEN
+  BEGIN
+    WRITELN('[Console] Aufgerundete Ergebnisse: Tische = ', anzahl_tische, ', Stühle = ', anzahl_stuehle);
+    WRITELN('[Console] Ressourcennutzung ist innerhalb der Grenzen.');
+  END
+  ELSE
+  BEGIN
+    WRITELN('[Console] Aufrunden nicht möglich, da es die Ressourcenbeschränkungen überschreiten würde.');
+  END;
+END.
