@@ -1,6 +1,6 @@
 # Operation_Research-LinearProgramming_IngencStaib
 
-Dieses Repository enthält den Code zur Lösung eines linearen Optimierungsproblems für eine fiktive Möbelfabrik. Der Code nutzt die Simplex-Methode zur Berechnung der optimalen Produktionsmengen für Tische und Stühle.
+Dieses Repository enthält den Code zur Lösung eines linearen Optimierungsproblems für eine reale Möbelfabrik, in einem fiktiven Szenario. Der Code nutzt die Simplex-Methode zur Berechnung der optimalen Produktionsmengen für Tische und Stühle.
 
 ## Inhalt
 
